@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+@import url('https://revers3ntropy.com/animations.css');
+
+:root {
+    --bg: rgb(255, 255, 255);
+
+    --primary-accent: rgb(191, 220, 226);
+
+    --text: rgb(47, 47, 47);
+    --text-accent: rgb(0, 0, 0);
+}
+
+html {
+    font-family: 'Nunito', sans-serif;
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#top-bar {
+    border: 1px solid var(--text);
+}
+
+#content {
+    border: 1px solid var(--text);
+
+}
+
+button {
+    background-color: var(--primary-accent);
+    border: none;
+    border-radius: 5px;
+    font-family: 'Nunito', sans-serif;
+}
