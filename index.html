@@ -15,21 +15,23 @@
 <body>
 
     <div id="top-bar">
-        <div class="top-bar-item">
+        <button class="top-bar-item big-button" id="poem">
             Poem
-        </div>
-        <div class="top-bar-item">
+        </button>
+        <button class="top-bar-item big-button" id="story">
             Story
-        </div>
+        </button>
     </div>
 
-    <button onclick="generate()" style="">
-        Prompt me!
-    </button>
+    <div id="options"></div>
 
-    <div id="content">
-        <div id="main">
+    <div id="go-button" class="center">
+        <button onclick="generate()">
+            Prompt me!
+        </button>
     </div>
+
+    <div id="content"></div>
 
 </body>
 </html>
