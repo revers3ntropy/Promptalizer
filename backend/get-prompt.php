@@ -3,9 +3,22 @@
 function getPoemPrompt($args) {
 	$data = [];
 	$data["type"] = "poem";
-	$data["lines"] = 6;
-	$data["rhyme"] = "ababab";
-	$data["keyword"] = getKeywords($args);
+	$poemType = getPoemType($args);
+	$data["poemType"] = $poemType;
+
+	if ($poemType == "Limerick") {
+		$data["lines"] = 4;
+	}
+	elseif ($poemType == "Villanelle") {
+		$data["lines"] = 19;
+	}
+	elseif($poemType == "Haiku") {
+		$data["lines"] = 3;
+	}
+	else {
+		$data["lines"] = getLines($args);
+	}
+	$data["keywords"] = getKeywords($args);
 	return json_encode($data);
 }
 
@@ -41,6 +54,14 @@ function getGenre($args) {
 	return $genre;
 }
 
+function getPoemType($args) {
+	// TODO: This should go in a database
+	$types = ["Blank verse", "Free verse", "Narrative poetry", "Haiku", "Pastoral Poetry", "Sonnet", "Elegy",
+		"Ode", "Limerick", "Ballad", "Soliloquy", "Villanelle"];
+	$type = pickRandom($types);
+	return $type;
+}
+
 function getWords($args) {
 	$min_words = 100;
 	$max_words = 1000;
@@ -54,6 +75,23 @@ function getWords($args) {
 	}
 	return rand($min_words, $max_words);
 }
+
+
+function getLines($args) {
+	$min_lines = 4;
+	$max_lines = 20;
+	if (array_key_exists("min_lines", $args))
+	{
+		$min_words = $args["min_lines"];
+	}
+	if (array_key_exists("max_lines", $args))
+	{
+		$max_words = $args["max_lines"];
+	}
+	return rand($min_lines, $max_lines);
+}
+
+
 
 function getKeywords($args) {
 	$num_keywords = 1;
