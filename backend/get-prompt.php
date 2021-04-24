@@ -1,5 +1,11 @@
 <?php
 
+// sample queries:
+//
+// ?type=poem&min_lines=5&max_lines=10
+// ?type=story&min_words=100&max_words=500
+// giving no arguments defaults to story with min_words=100 and max_words=1000
+
 function getPoemPrompt($args) {
 	$data = [];
 	$data["type"] = "poem";
