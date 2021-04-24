@@ -49,6 +49,7 @@ function getGenre($args) {
 	$genres = ["Science fiction", "Horror", "Romance", "Comedy", "Romantic comedy", "Historical fiction",
 		"Biography", "Crime caper", "Detective", "Magical realism", "Adventure", "Fantasy",
 		"Suspense", "Thriller", "Noir", "Medical drama", "Political thriller", "Cyberpunk", "Steampunk",
+		"Alternative history", "Dystopia", "Space opera", "Psychological thriller", "Espionage", 
 		"Comic fantasy", "Cozy mystery"];
 	$genre = pickRandom($genres);
 	return $genre;
