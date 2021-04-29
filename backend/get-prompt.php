@@ -115,5 +115,10 @@ function getKeywords($args) {
 	return $keywords;
 }
 
-$prompt = getPrompt($_GET);
-echo $prompt;
+$args = $_GET;
+if (!array_key_exists("type", $args)) {
+	$args["type"] = pickRandom(["poem", "story"]);
+}
+
+$prompt = getPrompt($args);
+print $prompt;
