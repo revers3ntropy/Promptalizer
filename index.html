@@ -13,13 +13,59 @@
 
 <body>
 
-<div id="options">
-    <label class="switch">
-        Poem | Story
-        <input type="checkbox">
-        <span class="slider round"></span>
-    </label>
+<div id="menu-bar">
+    <button
+            onclick="setState('story')"
+            class="button"
+            style="grid-column: 1/6; width: 100%"
+            id="go-to-story-button"
+    >
+        Story
+    </button>
+    <button
+            onclick="setState('poem')"
+            class="button"
+            style="grid-column: 6/11; width: 100%"
+            id="go-to-poem-button"
+    >
+        Poem
+    </button>
 </div>
+<div id="options">
+    <label>
+        Number of Keywords:
+        <input type="number" value="2" id="options-keywords">
+    </label>
+
+    <div id="poem-options">
+        <label>
+            Smallest number of lines:
+            <input type="number" value="5" id="options-minlines">
+        </label>
+        <br>
+        <label>
+            Largest number of lines:
+            <input type="number" value="25" id="options-maxlines">
+        </label>
+    </div>
+
+    <div id="story-options">
+        <label>
+            Smallest number of words:
+            <input type="number" value="200" id="options-minwords">
+        </label>
+        <br>
+        <label>
+            Largest number of words:
+            <input type="number" value="1000" id="options-maxwords">
+        </label>
+    </div>
+</div>
+<div style="text-align: center">
+    <button id="go" class="button"> Go! </button>
+</div>
+
+
 
 <div id="prompt"></div>
 
@@ -27,25 +73,125 @@
 </html>
 
 <script>
+    let state = 'story';
+    const states = [
+        'story',
+        'poem'
+    ];
+
+    const promptTypeToDisplayValue = {
+        'words': 'Number Of Words',
+        'genre': 'Genre',
+        'keywords': 'Must include',
+        'poemType': 'Poem Type',
+        'lines': 'Number of Lines'
+    }
+
+    function setState(newState) {
+        if (!states.includes(newState)) return;
+        state = newState;
+        reRender();
+    }
 
     async function getPrompt (options) {
         let prompt = await fetch('./backend/get-prompt.php?' + (Object.keys(options).map((key, index) => `${key}=${options[key]}`).join('&')));
         prompt = await prompt.json();
 
         const promptDIV = $('#prompt');
+        promptDIV.html('');
 
         for (const promptParam in prompt) {
+            if (promptParam === 'type') continue;
+
+            let name = promptParam;
+            name = promptTypeToDisplayValue[name];
+
+            let value = prompt[promptParam].toString();
+
+            console.log(typeof value);
+
+            value = value.split(',').join(', ');
+
             promptDIV.append(`
                 <div>
-                ${promptParam}: ${prompt[promptParam]}
+                ${name}: ${value}
                 </div>
             `);
         }
     }
 
-    getPrompt({
-        type: 'poem'
+    $('#go').click(() => {
+        // pass all possible, and then backend will deal with rest
+        getPrompt({
+            // all
+            type: state,
+            num_keywords: $('#options-keywords').val(),
+
+            // poem
+            min_lines: $('#options-minlines').val(),
+            max_lines: $('#options-maxlines').val(),
+
+            // story
+            min_words: $('#options-minwords').val(),
+            max_words: $('#options-maxwords').val()
+        });
     });
+
+    function reRender () {
+        console.log('..........');
+
+        const poemOptions = $('#poem-options');
+        const storyOptions = $('#story-options');
+        const poemButton = $(`#go-to-poem-button`);
+        const storyButton = $(`#go-to-story-button`);
+
+        switch (state) {
+            case 'story':
+                poemOptions.css('display', 'none');
+                storyOptions.css('display', 'flex');
+
+                poemButton.hover(() => {
+                    poemButton.css('background-color', 'var(--input-hover-bg)');
+                }, () => {
+                    poemButton.css('background-color', 'var(--input-bg)');
+                });
+                storyButton.hover(() => {
+                    storyButton.css('background-color', 'var(--input-hover-bg)');
+                }, () => {
+                    storyButton.css('background-color', 'var(--input-opposite-bg)');
+                });
+                poemButton.css('background-color', 'var(--input-bg)');
+                storyButton.css('background-color', 'var(--input-opposite-bg)');
+
+                break;
+            case 'poem':
+                poemOptions.css('display', 'flex');
+                storyOptions.css('display', 'none');
+
+                storyButton.hover(() => {
+                    storyButton.css('background-color', 'var(--input-hover-bg)');
+                }, () => {
+                    storyButton.css('background-color', 'var(--input-bg)');
+                });
+                poemButton.hover(() => {
+                    poemButton.css('background-color', 'var(--input-hover-bg)');
+                }, () => {
+                    poemButton.css('background-color', 'var(--input-opposite-bg)');
+                });
+                storyButton.css('background-color', 'var(--input-bg)');
+                poemButton.css('background-color', 'var(--input-opposite-bg)');
+
+                break;
+
+            default:
+                state = 'story';
+                reRender();
+                break;
+        }
+
+    }
+
+    reRender();
 
 
 </script>
