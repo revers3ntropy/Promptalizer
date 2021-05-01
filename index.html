@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+        Promptalizer
+    </title>
+
+    <meta name="viewport" content="width=device-width">
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+
+<div id="options">
+    <label class="switch">
+        Poem | Story
+        <input type="checkbox">
+        <span class="slider round"></span>
+    </label>
+</div>
+
+<div id="prompt"></div>
+
+</body>
+</html>
+
+<script>
+
+    async function getPrompt (options) {
+        let prompt = await fetch('./backend/get-prompt.php?' + (Object.keys(options).map((key, index) => `${key}=${options[key]}`).join('&')));
+        prompt = await prompt.json();
+
+        const promptDIV = $('#prompt');
+
+        for (const promptParam in prompt) {
+            promptDIV.append(`
+                <div>
+                ${promptParam}: ${prompt[promptParam]}
+                </div>
+            `);
+        }
+    }
+
+    getPrompt({
+        type: 'poem'
+    });
+
+
+</script>
