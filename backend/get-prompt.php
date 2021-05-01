@@ -6,44 +6,6 @@
 // ?type=story&min_words=100&max_words=500&num_keywords=1
 // giving no arguments defaults to story with min_words=100 and max_words=1000 and num_keywords=1
 
-function getPoemPrompt($args) {
-    $data = [];
-    $data["type"] = "poem";
-    $poemType = getPoemType($args);
-    $data["poemType"] = $poemType;
-
-    if ($poemType == "Limerick") {
-        $data["lines"] = 4;
-    }
-    elseif ($poemType == "Villanelle") {
-        $data["lines"] = 19;
-    }
-    elseif($poemType == "Haiku") {
-        $data["lines"] = 3;
-    }
-    else {
-        $data["lines"] = getLines($args);
-    }
-    $data["keywords"] = getKeywords($args);
-    return json_encode($data);
-}
-
-function getStoryPrompt($args) {
-    $data = [];
-    $data["type"] = "story";
-    $data["words"] = getWords($args);
-    $data["genre"] = getGenre($args);
-    $data["keywords"] = getKeywords($args);
-    return json_encode($data);
-}
-
-function getPrompt($args) {
-    if (array_key_exists("type", $args) && $args["type"] == "poem")
-        return getPoemPrompt($args);
-
-    // Default to a story prompt:
-    return getStoryPrompt($args);
-}
 
 function pickRandom($items) {
     $item = $items[array_rand($items)];
@@ -113,6 +75,70 @@ function getKeywords($args) {
         array_push($keywords, $keyword);
     }
     return $keywords;
+}
+
+function getLocation($args) {
+    $locations = ["Supermarket", "Cinema", "Forest", "City", "Village", "School", "Office", "Palace", "Cellar", "Sewer",
+	    "Cathedral", "Farm", "Orchard", "Factory", "Hospital", "Ship"];
+    $location = pickRandom($locations);
+    return $location;
+}
+
+function getCharacter($args) {
+    $characters = ["Doctor", "Robber", "Child", "Mother", "Guardian", "Alien", "Warrior", "Prince", "Princess", "Emperor", 
+	    "Sailor", "Prisoner", "Comedian", "Actor", "Baby", "Invisible man", "Student", "Teacher"];
+    $character = pickRandom($characters);
+    return $character;
+}
+
+function getEvent($args) {
+    $events = ["Wedding", "Birth", "Party", "Celebration", "Funeral", "Disaster", "Discovery", "War", "Plague", "End of the world",
+	    "Uprising or revolution", "Publication of a book", "Opening of a zoo", "Closing down sale", "Barmitzvah"];
+    $event = pickRandom($events);
+    return $event;
+}
+
+
+function getPoemPrompt($args) {
+    $data = [];
+    $data["type"] = "poem";
+    $poemType = getPoemType($args);
+    $data["poemType"] = $poemType;
+
+    if ($poemType == "Limerick") {
+        $data["lines"] = 4;
+    }
+    elseif ($poemType == "Villanelle") {
+        $data["lines"] = 19;
+    }
+    elseif($poemType == "Haiku") {
+        $data["lines"] = 3;
+    }
+    else {
+        $data["lines"] = getLines($args);
+    }
+    $data["keywords"] = getKeywords($args);
+    return json_encode($data);
+}
+
+function getStoryPrompt($args) {
+    $data = [];
+    $data["type"] = "story";
+    $data["words"] = getWords($args);
+    $data["genre"] = getGenre($args);
+    $data["keywords"] = getKeywords($args);
+    $data["character"] = getCharacter($args);
+    $data["location"] = getLocation($args);
+    $data["event"] = getEvent($args);
+    return json_encode($data);
+}
+
+function getPrompt($args) {
+    if (array_key_exists("type", $args) && $args["type"] == "poem")
+        return getPoemPrompt($args);
+
+    // Default to a story prompt:
+    return getStoryPrompt($args);
 }
 
 $args = $_GET;
