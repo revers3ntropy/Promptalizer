@@ -51,11 +51,11 @@ function getLines($args) {
     $max_lines = 20;
     if (array_key_exists("min_lines", $args))
     {
-        $min_words = $args["min_lines"];
+        $min_lines = $args["min_lines"];
     }
     if (array_key_exists("max_lines", $args))
     {
-        $max_words = $args["max_lines"];
+        $max_lines = $args["max_lines"];
     }
     return rand($min_lines, $max_lines);
 }
