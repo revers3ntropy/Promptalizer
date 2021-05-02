@@ -32,8 +32,10 @@ function getPoemType($args) {
 }
 
 function getWords($args) {
+    $lengths = [25, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 750, 1000, 1250, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000];
     $min_words = 100;
     $max_words = 1000;
+
     if (array_key_exists("min_words", $args))
     {
         $min_words = $args["min_words"];
@@ -42,7 +44,15 @@ function getWords($args) {
     {
         $max_words = $args["max_words"];
     }
-    return rand($min_words, $max_words);
+
+    $lengths_filtered = [$min_words, $max_words];
+
+    foreach($lengths as $length) {
+        if ($length > $min_words && $length < $max_words && !in_array($length, $lengths_filtered)) {
+	    array_push($lengths_filtered, $length);
+        }
+    }
+    return pickRandom($lengths_filtered);
 }
 
 
