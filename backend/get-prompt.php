@@ -77,11 +77,18 @@ function getKeywords($args) {
     if (array_key_exists("num_keywords", $args)) {
         $num_keywords = $args["num_keywords"];
     }
-    $words = file("words.txt");
+    $words = file("words.txt", FILE_IGNORE_NEW_LINES);
     $keywords = [];
     for ($i = 0; $i < $num_keywords; $i ++) {
         $keyword = $words[rand(0, count($words) - 1)];
-        $keyword = str_replace("\n", '', $keyword);
+	$keyword = str_replace("\n", '', $keyword);
+	// strip off final 's' if it's a plural:
+	if (substr($keyword, -1) == "s" && in_array(substr($keyword, 0, -1), $words)) {
+	    $keyword = substr($keyword, 0, -1);
+	}
+	if (substr($keyword, -2) == "es" && in_array(substr($keyword, 0, -2), $words)) {
+	    $keyword = substr($keyword, 0, -2);
+	}
         array_push($keywords, $keyword);
     }
     return $keywords;
