@@ -174,4 +174,4 @@ else {
     $prompt["id"] = $id;
 }
 
-print json_encode($prompt);
+echo json_encode($prompt);

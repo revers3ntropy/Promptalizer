@@ -58,4 +58,3 @@ function store_prompt($args, $prompt) {
     return $id;
 }
 
-?>

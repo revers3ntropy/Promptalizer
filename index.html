@@ -13,6 +13,22 @@
 
 <body>
 
+<input type="text" id="clipboard" style="position: absolute; top: -100000px"/>
+
+<div id="top-menu">
+    <div id="logo"></div>
+
+    <div id="copy-link-container">
+        <button id="copy-link-button">
+            Copy Link to Clipboard
+        </button>
+    </div>
+
+    <div id="report-bugs-container">
+        Report bugs to bugs@promptalizer.com
+    </div>
+</div>
+
 <div id="menu-bar">
     <button
             onclick="setState('story')"
@@ -31,13 +47,13 @@
         Poem
     </button>
 </div>
-<div id="options">
-    <label>
-        Number of Keywords:
-        <input type="number" value="2" id="options-keywords">
-    </label>
-
+<div id="poem">
     <div id="poem-options">
+        <label>
+            Number of Keywords:
+            <input type="number" value="2" id="poem-keywords">
+        </label>
+        <br>
         <label>
             Smallest number of lines:
             <input type="number" value="5" id="options-minlines">
@@ -47,9 +63,22 @@
             Largest number of lines:
             <input type="number" value="25" id="options-maxlines">
         </label>
+
+        <div style="text-align: center">
+            <button id="poem-go" class="button"> Go! </button>
+        </div>
     </div>
 
+    <div id="poem-prompt"></div>
+</div>
+
+<div id="story">
     <div id="story-options">
+        <label>
+            Number of Keywords:
+            <input type="number" value="2" id="story-keywords">
+        </label>
+        <br>
         <label>
             Smallest number of words:
             <input type="number" value="200" id="options-minwords">
@@ -59,16 +88,13 @@
             Largest number of words:
             <input type="number" value="1000" id="options-maxwords">
         </label>
+        <div style="text-align: center">
+        <button id="story-go" class="button"> Go! </button>
     </div>
+    </div>
+
+    <div id="story-prompt"></div>
 </div>
-<div style="text-align: center">
-    <button id="go" class="button"> Go! </button>
-</div>
-
-
-
-<div id="prompt"></div>
-
 </body>
 </html>
 
@@ -79,12 +105,20 @@
         'poem'
     ];
 
+    const promptID = {
+    	'story': 0,
+        'poem': 0
+    }
+
     const promptTypeToDisplayValue = {
         'words': 'Number Of Words',
         'genre': 'Genre',
         'keywords': 'Words to include',
         'poemType': 'Poem Type',
-        'lines': 'Number of Lines'
+        'lines': 'Number of Lines',
+        'character': 'Character to include',
+        'location': 'Location',
+        'event': 'Event'
     }
 
     function setState(newState) {
@@ -93,39 +127,111 @@
         reRender();
     }
 
+    function copyToClipboard(text) {
+    	const clipboard = document.getElementById('clipboard');
+
+        clipboard.value = text;
+		clipboard.select();
+		console.log(clipboard.value);
+		clipboard.setSelectionRange(0, 99999); /* For mobile devices */
+        document.execCommand("copy");
+		clipboard.innerText = '';
+    }
+
+	document.querySelector("#copy-link-button").addEventListener("click", () => {
+		const id = promptID[state];
+		if (id === 0) return;
+		hideCopyButton();
+		copyToClipboard(`https://promptalizer.com/?prompt=${id}`);
+	});
+
+    function hideCopyButton () {
+    	document.getElementById('copy-link-button').style.display = 'none';
+    }
+
+	function showCopyButton () {
+		document.getElementById('copy-link-button').style.display = 'flex';
+	}
+
+	hideCopyButton();
+
+    function setPrompt(prompt, promptDIV) {
+		for (const promptParam in prompt) {
+			if (['type', 'id'].includes(promptParam)) continue;
+
+			let name = promptParam;
+			name = promptTypeToDisplayValue[name];
+			showCopyButton ();
+
+			let value = prompt[promptParam].toString();
+
+			value = value.split(',').join(', ');
+
+			promptDIV.append(`
+            <div style="border-bottom: 1px solid #cbcbcb">
+                <p style="font-size: 20px">
+                    ${name}
+                </p>
+
+                <p>
+                    ${value}
+                </p>
+            </div>
+
+
+            `);
+		}
+    }
+
+    function setOptionsFromJSON (options) {
+        if (state === 'poem') {
+        	$('#poem-keywords').val(options['num_keywords']);
+			$('#options-minlines').val(options['min_lines']);
+			$('#options-maxlines').val(options['max_lines']);
+        	return;
+        }
+
+        $('#story-keywords').val(options['num_keywords']);
+		$('#options-minwords').val(options['min_words']);
+		$('#options-maxwords').val(options['max_words']);
+    }
+
     async function getPrompt (options) {
         let prompt = await fetch('./backend/get-prompt.php?' + (Object.keys(options).map((key, index) => `${key}=${options[key]}`).join('&')));
         prompt = await prompt.json();
 
-        const promptDIV = $('#prompt');
+		state = prompt.type;
+        const promptDIV = $(`#${state}-prompt`);
         promptDIV.html('');
 
-        for (const promptParam in prompt) {
-            if (promptParam === 'type') continue;
+        promptID[state] = prompt.id;
 
-            let name = promptParam;
-            name = promptTypeToDisplayValue[name];
+        console.log(prompt);
 
-            let value = prompt[promptParam].toString();
+        if (Array.isArray(prompt)) {
+        	// prompt from id
 
-            console.log(typeof value);
+            prompt = prompt[0];
+            state = JSON.parse(prompt[2])?.type || 'story';
 
-            value = value.split(',').join(', ');
+			setPrompt(JSON.parse(prompt[2]), $(`#${state}-prompt`));
+			setOptionsFromJSON(JSON.parse(prompt[1]));
+			promptID[state] = parseInt(prompt[0]);
 
-            promptDIV.append(`
-                <div>
-                ${name}: ${value}
-                </div>
-            `);
+			reRender();
+        	return;
         }
+
+        setPrompt(prompt, promptDIV)
+        reRender();
     }
 
-    $('#go').click(() => {
+    $('#story-go, #poem-go').click(() => {
         // pass all possible, and then backend will deal with rest
         getPrompt({
             // all
             type: state,
-            num_keywords: $('#options-keywords').val(),
+            num_keywords: $(`#${state}-keywords`).val(),
 
             // poem
             min_lines: $('#options-minlines').val(),
@@ -140,15 +246,15 @@
     function reRender () {
         console.log('..........');
 
-        const poemOptions = $('#poem-options');
-        const storyOptions = $('#story-options');
+        const poemOptions = $('#poem');
+        const storyOptions = $('#story');
         const poemButton = $(`#go-to-poem-button`);
         const storyButton = $(`#go-to-story-button`);
 
         switch (state) {
             case 'story':
                 poemOptions.css('display', 'none');
-                storyOptions.css('display', 'flex');
+                storyOptions.css('display', 'inline');
 
                 poemButton.hover(() => {
                     poemButton.css('background-color', 'var(--input-hover-bg)');
@@ -165,7 +271,7 @@
 
                 break;
             case 'poem':
-                poemOptions.css('display', 'flex');
+                poemOptions.css('display', 'inline');
                 storyOptions.css('display', 'none');
 
                 storyButton.hover(() => {
@@ -193,5 +299,13 @@
 
     reRender();
 
+    // deal with set ids in
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+	const id = urlParams.get('prompt');
+    if (id)
+        getPrompt({
+            id
+        });
 
 </script>
