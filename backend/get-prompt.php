@@ -5,7 +5,7 @@
 // ?type=poem&min_lines=5&max_lines=10&num_keywords=2
 // ?type=story&min_words=100&max_words=500&num_keywords=1
 // giving no arguments defaults to story with min_words=100 and max_words=1000 and num_keywords=1
-//
+// ?id=2367234 will return a previously saved prompt with the specified id
 
 require_once("query-sql.php");
 
@@ -161,11 +161,18 @@ function getPrompt($args) {
 }
 
 $args = $_GET;
-if (!array_key_exists("type", $args)) {
-    $args["type"] = pickRandom(["poem", "story"]);
+$args["id"] = 1521787809;
+if (array_key_exists("id", $args)) {
+    $id = $args["id"];
+    $prompt = get_prompt_by_id($id);
+}
+else {
+    if (!array_key_exists("type", $args)) {
+        $args["type"] = pickRandom(["poem", "story"]);
+    }
+    $prompt = getPrompt($args);
+    $id = store_prompt($args, $prompt);
+    $prompt["id"] = $id;
 }
 
-$prompt = getPrompt($args);
-$id = store_prompt($args, $prompt);
-$prompt["id"] = $id;
 print json_encode($prompt);

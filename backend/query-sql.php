@@ -41,6 +41,12 @@ function new_random_id() {
     return $id;
 }
 
+function get_prompt_by_id($id) {
+    $query = "SELECT * FROM prompts WHERE id=".$id;
+    $result = query_db($query);
+    return $result;
+}
+
 function store_prompt($args, $prompt) {
     $id = new_random_id();
     if ($id === false) {
