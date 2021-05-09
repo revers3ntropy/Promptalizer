@@ -137,7 +137,7 @@ function getPoemPrompt($args) {
         $data["lines"] = getLines($args);
     }
     $data["keywords"] = getKeywords($args);
-    return json_encode($data);
+    return $data;
 }
 
 function getStoryPrompt($args) {
@@ -149,7 +149,7 @@ function getStoryPrompt($args) {
     $data["character"] = getCharacter($args);
     $data["location"] = getLocation($args);
     $data["event"] = getEvent($args);
-    return json_encode($data);
+    return $data;
 }
 
 function getPrompt($args) {
@@ -166,5 +166,6 @@ if (!array_key_exists("type", $args)) {
 }
 
 $prompt = getPrompt($args);
-store_prompt($args, $prompt);
-print $prompt;
+$id = store_prompt($args, $prompt);
+$prompt["id"] = $id;
+print json_encode($prompt);

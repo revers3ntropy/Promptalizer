@@ -46,8 +46,10 @@ function store_prompt($args, $prompt) {
     if ($id === false) {
         return false;
     }
-    $query = "INSERT INTO prompts VALUES (".$id.", \"".addslashes(json_encode($args))."\", \"".addslashes($prompt)."\");";
-    return query_db($query);
+    $prompt["id"] = $id;
+    $query = "INSERT INTO prompts VALUES (".$id.", \"".addslashes(json_encode($args))."\", \"".addslashes(json_encode($prompt))."\");";
+    query_db($query);
+    return $id;
 }
 
 ?>
