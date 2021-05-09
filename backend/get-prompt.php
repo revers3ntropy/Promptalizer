@@ -161,7 +161,6 @@ function getPrompt($args) {
 }
 
 $args = $_GET;
-$args["id"] = 1521787809;
 if (array_key_exists("id", $args)) {
     $id = $args["id"];
     $prompt = get_prompt_by_id($id);
