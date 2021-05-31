@@ -15,22 +15,11 @@ function pickRandom($items) {
 }
 
 function getGenre($args) {
-    // TODO: This should go in a database
-    $genres = ["Science fiction", "Horror", "Romance", "Comedy", "Romantic comedy", "Historical fiction",
-        "Biography", "Crime caper", "Detective", "Magical realism", "Adventure", "Fantasy",
-        "Suspense", "Thriller", "Noir", "Medical drama", "Political thriller", "Cyberpunk", "Steampunk",
-        "Alternative history", "Dystopia", "Space opera", "Psychological thriller", "Espionage",
-        "Comic fantasy", "Cozy mystery"];
-    $genre = pickRandom($genres);
-    return $genre;
+    return get_word_from_db('genre', 1);
 }
 
 function getPoemType($args) {
-    // TODO: This should go in a database
-    $types = ["Blank verse", "Free verse", "Narrative poetry", "Haiku", "Pastoral Poetry", "Sonnet", "Elegy",
-        "Ode", "Limerick", "Ballad", "Soliloquy", "Villanelle"];
-    $type = pickRandom($types);
-    return $type;
+    return get_word_from_db('poemType', 1);
 }
 
 function getWords($args) {
@@ -49,9 +38,12 @@ function getWords($args) {
 
     $lengths_filtered = [$min_words, $max_words];
 
-    foreach($lengths as $length) {
-        if ($length > $min_words && $length < $max_words && !in_array($length, $lengths_filtered)) {
-	    array_push($lengths_filtered, $length);
+    foreach ($lengths as $length) {
+        if ($length > $min_words && $length < $max_words)
+        {
+            if (in_array($length, $lengths_filtered)) continue;
+
+	        array_push($lengths_filtered, $length);
         }
     }
     return pickRandom($lengths_filtered);

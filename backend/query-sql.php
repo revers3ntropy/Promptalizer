@@ -58,3 +58,15 @@ function store_prompt($args, $prompt) {
     return $id;
 }
 
+function get_word_from_db ($type, $limit) {
+    return query_db("
+    
+    SELECT word
+    FROM words
+    WHERE type = '".$type."'
+    ORDER BY RAND()
+    LIMIT ".$limit."
+    
+    ")[0][0];
+}
+

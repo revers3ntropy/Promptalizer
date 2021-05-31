@@ -119,7 +119,7 @@
         </label>
 	<br>
         <div style="text-align: center">
-        <button id="story-go" class="button"> Go! </button>
+        <button id="picture-go" class="button"> Go! </button>
     </div>
     </div>
 
@@ -134,13 +134,13 @@
     const states = [
         'story',
         'poem',
-	'picture'
+	    'picture'
     ];
 
     const promptID = {
     	'story': 0,
         'poem': 0,
-	'picture': 0
+	    'picture': 0
     }
 
     const promptTypeToDisplayValue = {
@@ -152,12 +152,14 @@
         'character': 'Character to include',
         'location': 'Location',
         'event': 'Event',
-	'mood': 'Mood',
-	'objects': 'Objects to include'
+        'mood': 'Mood',
+        'objects': 'Objects to include'
     }
 
     function setState(newState) {
         if (!states.includes(newState)) return;
+        if (state === newState) return;
+
         state = newState;
         reRender();
     }
@@ -288,92 +290,60 @@
         });
     });
 
+	function setTabNotActive (tab, div) {
+		tab.hover(() => {
+			tab.css('background-color', 'var(--input-hover-bg)');
+		}, () => {
+			tab.css('background-color', 'var(--input-opposite-bg)');
+		});
+
+		tab.css('background-color', 'var(--input-opposite-bg)');
+		tab.css('border-bottom', 'none');
+		div.css('display', 'none');
+	}
+
+	function setTabActive (tab, div) {
+		tab.hover(() => {
+			tab.css('background-color', 'var(--input-hover-bg)');
+		}, () => {
+			tab.css('background-color', 'var(--input-bg)');
+		});
+
+		tab.css('background-color', 'var(--input-bg)');
+		tab.css('border-bottom', '3px sold blue');
+		div.css('display', 'inline');
+	}
+
+	const poemOptions = $('#poem');
+	const storyOptions = $('#story');
+	const pictureOptions = $('#picture');
+	const poemButton = $(`#go-to-poem-button`);
+	const storyButton = $(`#go-to-story-button`);
+	const pictureButton = $('#go-to-picture-button');
+
     function reRender () {
         console.log('..........');
 
-        const poemOptions = $('#poem');
-        const storyOptions = $('#story');
-	const pictureOptions = $('#picture');
-        const poemButton = $(`#go-to-poem-button`);
-        const storyButton = $(`#go-to-story-button`);
-	const pictureButton = $('#go-to-picture-button');
-
         switch (state) {
             case 'story':
-                poemOptions.css('display', 'none');
-		pictureOptions.css('display', 'none');
-                storyOptions.css('display', 'inline');
 
-                poemButton.hover(() => {
-                    poemButton.css('background-color', 'var(--input-hover-bg)');
-                }, () => {
-                    poemButton.css('background-color', 'var(--input-bg)');
-                });
-                pictureButton.hover(() => {
-                    pictureButton.css('background-color', 'var(--input-hover-bg)');
-                }, () => {
-                    pictureButton.css('background-color', 'var(--input-bg)');
-                });
-                storyButton.hover(() => {
-                    storyButton.css('background-color', 'var(--input-hover-bg)');
-                }, () => {
-                    storyButton.css('background-color', 'var(--input-opposite-bg)');
-                });
-                pictureButton.css('background-color', 'var(--input-bg)');
-                poemButton.css('background-color', 'var(--input-bg)');
-                storyButton.css('background-color', 'var(--input-opposite-bg)');
+                setTabNotActive(poemButton, poemOptions);
+				setTabNotActive(pictureButton, pictureOptions);
+				setTabActive(storyButton, storyOptions);
 
                 break;
 
             case 'poem':
-                poemOptions.css('display', 'inline');
-		pictureOptions.css('display', 'none');
-                storyOptions.css('display', 'none');
-
-                storyButton.hover(() => {
-                    storyButton.css('background-color', 'var(--input-hover-bg)');
-                }, () => {
-                    storyButton.css('background-color', 'var(--input-bg)');
-                });
-                pictureButton.hover(() => {
-                    pictureButton.css('background-color', 'var(--input-hover-bg)');
-                }, () => {
-                    pictureButton.css('background-color', 'var(--input-bg)');
-                });
-                poemButton.hover(() => {
-                    poemButton.css('background-color', 'var(--input-hover-bg)');
-                }, () => {
-                    poemButton.css('background-color', 'var(--input-opposite-bg)');
-                });
-                storyButton.css('background-color', 'var(--input-bg)');
-                pictureButton.css('background-color', 'var(--input-bg)');
-                poemButton.css('background-color', 'var(--input-opposite-bg)');
+				setTabActive(poemButton, poemOptions);
+				setTabNotActive(pictureButton, pictureOptions);
+				setTabNotActive(storyButton, storyOptions);
 
                 break;
 
             case 'picture':
-                pictureOptions.css('display', 'inline');
-		poemOptions.css('display', 'none');
-                storyOptions.css('display', 'none');
-
-                storyButton.hover(() => {
-                    storyButton.css('background-color', 'var(--input-hover-bg)');
-                }, () => {
-                    storyButton.css('background-color', 'var(--input-bg)');
-                });
-                poemButton.hover(() => {
-                    poemButton.css('background-color', 'var(--input-hover-bg)');
-                }, () => {
-                    poemButton.css('background-color', 'var(--input-bg)');
-                });
-                pictureButton.hover(() => {
-                    pictureButton.css('background-color', 'var(--input-hover-bg)');
-                }, () => {
-                    pictureButton.css('background-color', 'var(--input-opposite-bg)');
-                });
-                storyButton.css('background-color', 'var(--input-bg)');
-                poemButton.css('background-color', 'var(--input-bg)');
-                pictureButton.css('background-color', 'var(--input-opposite-bg)');
+				setTabNotActive(poemButton, poemOptions);
+				setTabActive(pictureButton, pictureOptions);
+				setTabNotActive(storyButton, storyOptions);
 
                 break;
 
