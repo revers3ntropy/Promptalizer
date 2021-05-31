@@ -47,11 +47,11 @@ body {
     margin-top: 0;
 }
 
-#poem-prompt, #story-prompt {
+#poem-prompt, #story-prompt, #picture-prompt {
     padding: 10px;
 }
 
-#poem-options, #story-options {
+#poem-options, #story-options, #picture-options {
     text-align: center;
     min-height: 50px;
     border: 1px solid #c2c2c2;
@@ -70,13 +70,18 @@ body {
     width: 100%
 }
 
-#story-go, #poem-go {
+#picture {
+    text-align: centre;
+    width: 100%;
+}
+
+#story-go, #poem-go, #picture-go {
     width: 100px;
     border-radius: 5px;
     margin: 5px;
 }
 
-#story-go:hover, #poem-go:hover {
+#story-go:hover, #poem-go:hover, #picture-go:hover {
     width: 110px;
     background-color: #b3b3b3;
 }

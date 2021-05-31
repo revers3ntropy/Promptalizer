@@ -103,6 +103,31 @@ function getLocation($args) {
     return $location;
 }
 
+function getObjects($args) {
+    $num_objects = 1;
+    if (array_key_exists("num_objects", $args)) {
+        $num_objects = $args["num_objects"];
+    }
+    $result = [];
+    $objects = ["hat", "ball", "apple", "tree", "egg", "jar", "vase", "t-shirt", "sock", "glass", "clock", "pillow", "towel",
+		"crown", "shoe", "bed", "flower", "orange", "box", "light", "tissue", "chewing gum", "photo", "camera",
+		"stamp", "postcard", "book", "dictionary", "coin", "brush", "credit card", "key", "mobile phone", "wallet",
+		"button", "umbrella", "pen", "pencil", "cigarette", "match", "lipstick", "purse", "scissors", "knife", 
+		"passport", "comb", "notebook", "laptop", "mirror", "toothbrush", "battery", "light bulb", "newspaper",
+		"magazine", "fork", "plate", "bowl", "chair", "table", "car", "rug", "window", "door", "basket"];
+    for ($i = 0; $i < $num_objects; $i ++) {
+	    $object = pickRandom($objects);
+	    array_push($result, $object);
+    }
+    return $result;
+}
+
+function getMood($args) {
+    $moods = ["happy", "sad", "calm", "manic", "confused", "intense", "upsetting", "loving", "caring", "fear"];
+    $mood = pickRandom($moods);
+    return $mood;
+}
+
 function getCharacter($args) {
     $characters = ["Doctor", "Robber", "Child", "Mother", "Guardian", "Alien", "Warrior", "Prince", "Princess", "Emperor", 
 	    "Sailor", "Prisoner", "Comedian", "Actor", "Baby", "Invisible man", "Student", "Teacher"];
@@ -152,9 +177,23 @@ function getStoryPrompt($args) {
     return $data;
 }
 
+function getPicturePrompt($args) {
+    $data = [];
+    $data["type"] = "picture";
+    $data["objects"] = getObjects($args);
+    $data["location"] = getLocation($args);
+    $data["mood"] = getMood($args);
+    $data["keywords"] = getKeywords($args);
+    return $data;
+}
+
+
 function getPrompt($args) {
     if (array_key_exists("type", $args) && $args["type"] == "poem")
-        return getPoemPrompt($args);
+	    return getPoemPrompt($args);
+
+    if (array_key_exists("type", $args) && $args["type"] == "picture")
+	    return getPicturePrompt($args);
 
     // Default to a story prompt:
     return getStoryPrompt($args);
@@ -167,7 +206,7 @@ if (array_key_exists("id", $args)) {
 }
 else {
     if (!array_key_exists("type", $args)) {
-        $args["type"] = pickRandom(["poem", "story"]);
+        $args["type"] = pickRandom(["poem", "story", "picture"]);
     }
     $prompt = getPrompt($args);
     $id = store_prompt($args, $prompt);

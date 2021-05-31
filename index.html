@@ -33,7 +33,7 @@
     <button
             onclick="setState('story')"
             class="button"
-            style="grid-column: 1/6; width: 100%"
+            style="grid-column: 1/4; width: 100%"
             id="go-to-story-button"
     >
         Story
@@ -41,11 +41,21 @@
     <button
             onclick="setState('poem')"
             class="button"
-            style="grid-column: 6/11; width: 100%"
+            style="grid-column: 4/8; width: 100%"
             id="go-to-poem-button"
     >
         Poem
     </button>
+    <button
+            onclick="setState('picture')"
+            class="button"
+            style="grid-column: 8/11; width: 100%"
+            id="go-to-picture-button"
+    >
+        Picture
+    </button>
+
+
 </div>
 <div id="poem">
     <div id="poem-options">
@@ -95,6 +105,27 @@
 
     <div id="story-prompt"></div>
 </div>
+
+<div id="picture">
+    <div id="picture-options">
+        <label>
+            Number of Keywords:
+            <input type="number" value="2" id="picture-keywords">
+        </label>
+        <br>
+        <label>
+            Number of Objects:
+            <input type="number" value="2" id="picture-objects">
+        </label>
+	<br>
+        <div style="text-align: center">
+        <button id="story-go" class="button"> Go! </button>
+    </div>
+    </div>
+
+    <div id="picture-prompt"></div>
+</div>
+
 </body>
 </html>
 
@@ -102,23 +133,27 @@
     let state = 'story';
     const states = [
         'story',
-        'poem'
+        'poem',
+	'picture'
     ];
 
     const promptID = {
     	'story': 0,
-        'poem': 0
+        'poem': 0,
+	'picture': 0
     }
 
     const promptTypeToDisplayValue = {
         'words': 'Number Of Words',
         'genre': 'Genre',
-        'keywords': 'Words to include',
+        'keywords': 'Prompt keywords',
         'poemType': 'Poem Type',
         'lines': 'Number of Lines',
         'character': 'Character to include',
         'location': 'Location',
-        'event': 'Event'
+        'event': 'Event',
+	'mood': 'Mood',
+	'objects': 'Objects to include'
     }
 
     function setState(newState) {
@@ -167,7 +202,8 @@
 
 			value = value.split(',').join(', ');
 
-			promptDIV.append(`
+			if (value.length > 0) {
+				promptDIV.append(`
             <div style="border-bottom: 1px solid #cbcbcb">
                 <p style="font-size: 20px">
                     ${name}
@@ -180,27 +216,33 @@
 
 
             `);
+			}
 		}
     }
 
     function setOptionsFromJSON (options) {
         if (state === 'poem') {
         	$('#poem-keywords').val(options['num_keywords']);
-			$('#options-minlines').val(options['min_lines']);
-			$('#options-maxlines').val(options['max_lines']);
+		$('#options-minlines').val(options['min_lines']);
+		$('#options-maxlines').val(options['max_lines']);
         	return;
         }
 
+	if (state === 'picture') {
+		$('#picture-keywords').val(options['num_keywords']);
+		$('#picture-objects').val(options['num_objects']);
+	}
+
         $('#story-keywords').val(options['num_keywords']);
-		$('#options-minwords').val(options['min_words']);
-		$('#options-maxwords').val(options['max_words']);
+	$('#options-minwords').val(options['min_words']);
+	$('#options-maxwords').val(options['max_words']);
     }
 
     async function getPrompt (options) {
         let prompt = await fetch('./backend/get-prompt.php?' + (Object.keys(options).map((key, index) => `${key}=${options[key]}`).join('&')));
         prompt = await prompt.json();
 
-		state = prompt.type;
+	state = prompt.type;
         const promptDIV = $(`#${state}-prompt`);
         promptDIV.html('');
 
@@ -211,14 +253,14 @@
         if (Array.isArray(prompt)) {
         	// prompt from id
 
-            prompt = prompt[0];
-            state = JSON.parse(prompt[2])?.type || 'story';
+       		prompt = prompt[0];
+        	state = JSON.parse(prompt[2])?.type || 'story';
 
-			setPrompt(JSON.parse(prompt[2]), $(`#${state}-prompt`));
-			setOptionsFromJSON(JSON.parse(prompt[1]));
-			promptID[state] = parseInt(prompt[0]);
+    		setPrompt(JSON.parse(prompt[2]), $(`#${state}-prompt`));
+		setOptionsFromJSON(JSON.parse(prompt[1]));
+		promptID[state] = parseInt(prompt[0]);
 
-			reRender();
+    		reRender();
         	return;
         }
 
@@ -226,7 +268,7 @@
         reRender();
     }
 
-    $('#story-go, #poem-go').click(() => {
+    $('#story-go, #poem-go, #picture-go').click(() => {
         // pass all possible, and then backend will deal with rest
         getPrompt({
             // all
@@ -239,7 +281,10 @@
 
             // story
             min_words: $('#options-minwords').val(),
-            max_words: $('#options-maxwords').val()
+            max_words: $('#options-maxwords').val(),
+
+	    // picture
+	    num_objects: $('#picture-objects').val()
         });
     });
 
@@ -248,12 +293,15 @@
 
         const poemOptions = $('#poem');
         const storyOptions = $('#story');
+	const pictureOptions = $('#picture');
         const poemButton = $(`#go-to-poem-button`);
         const storyButton = $(`#go-to-story-button`);
+	const pictureButton = $('#go-to-picture-button');
 
         switch (state) {
             case 'story':
                 poemOptions.css('display', 'none');
+		pictureOptions.css('display', 'none');
                 storyOptions.css('display', 'inline');
 
                 poemButton.hover(() => {
@@ -261,17 +309,51 @@
                 }, () => {
                     poemButton.css('background-color', 'var(--input-bg)');
                 });
+                pictureButton.hover(() => {
+                    pictureButton.css('background-color', 'var(--input-hover-bg)');
+                }, () => {
+                    pictureButton.css('background-color', 'var(--input-bg)');
+                });
                 storyButton.hover(() => {
                     storyButton.css('background-color', 'var(--input-hover-bg)');
                 }, () => {
                     storyButton.css('background-color', 'var(--input-opposite-bg)');
                 });
+                pictureButton.css('background-color', 'var(--input-bg)');
                 poemButton.css('background-color', 'var(--input-bg)');
                 storyButton.css('background-color', 'var(--input-opposite-bg)');
 
                 break;
+
             case 'poem':
                 poemOptions.css('display', 'inline');
+		pictureOptions.css('display', 'none');
+                storyOptions.css('display', 'none');
+
+                storyButton.hover(() => {
+                    storyButton.css('background-color', 'var(--input-hover-bg)');
+                }, () => {
+                    storyButton.css('background-color', 'var(--input-bg)');
+                });
+                pictureButton.hover(() => {
+                    pictureButton.css('background-color', 'var(--input-hover-bg)');
+                }, () => {
+                    pictureButton.css('background-color', 'var(--input-bg)');
+                });
+                poemButton.hover(() => {
+                    poemButton.css('background-color', 'var(--input-hover-bg)');
+                }, () => {
+                    poemButton.css('background-color', 'var(--input-opposite-bg)');
+                });
+                storyButton.css('background-color', 'var(--input-bg)');
+                pictureButton.css('background-color', 'var(--input-bg)');
+                poemButton.css('background-color', 'var(--input-opposite-bg)');
+
+                break;
+
+            case 'picture':
+                pictureOptions.css('display', 'inline');
+		poemOptions.css('display', 'none');
                 storyOptions.css('display', 'none');
 
                 storyButton.hover(() => {
@@ -282,10 +364,16 @@
                 poemButton.hover(() => {
                     poemButton.css('background-color', 'var(--input-hover-bg)');
                 }, () => {
-                    poemButton.css('background-color', 'var(--input-opposite-bg)');
+                    poemButton.css('background-color', 'var(--input-bg)');
+                });
+                pictureButton.hover(() => {
+                    pictureButton.css('background-color', 'var(--input-hover-bg)');
+                }, () => {
+                    pictureButton.css('background-color', 'var(--input-opposite-bg)');
                 });
                 storyButton.css('background-color', 'var(--input-bg)');
-                poemButton.css('background-color', 'var(--input-opposite-bg)');
+                poemButton.css('background-color', 'var(--input-bg)');
+                pictureButton.css('background-color', 'var(--input-opposite-bg)');
 
                 break;
 
